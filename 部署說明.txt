@@ -1,0 +1,94 @@
+Trader's Gambit 交易員的計謀｜正式版部署說明
+================================================
+
+資料夾裡有什麼
+--------------
+traders-gambit/          ← 整個資料夾就是網站，要上傳到 Netlify 的就是它
+  index.html             來賓手機頁（掃 QR code 進來的頁面）
+  host.html              主持人大螢幕頁（用筆電開，接投影）
+  config.js              ★ 唯一需要你修改的檔案（貼 Firebase 設定）
+  core.js / host.js / player.js / style.css   程式本體，不用動
+  database.rules.json    資料庫安全規則（步驟 1-5 要複製貼上）
+
+
+步驟 1：建立 Firebase（免費 Spark 方案，約 10 分鐘）
+---------------------------------------------------
+1-1  用 Google 帳號登入 https://console.firebase.google.com
+     →「建立專案」，名稱例如 ebc-gala-2026。
+     Google Analytics 可以關掉。不需要綁信用卡。
+
+1-2  左側「建構 Build → Authentication」→「開始使用」
+     →「登入方式 Sign-in method」→ 啟用「匿名 Anonymous」→ 儲存。
+
+1-3  左側「建構 Build → Realtime Database」→「建立資料庫」
+     → 位置選「新加坡 asia-southeast1」（離台灣最近）
+     → 先選「以鎖定模式啟動」→ 啟用。
+
+1-4  在 Realtime Database 頁面上方切到「規則 Rules」分頁：
+     把 database.rules.json 的全部內容貼上，取代原本的內容 →「發布 Publish」。
+
+1-5  左上齒輪「專案設定 Project settings」→「一般 General」
+     → 拉到最下面「你的應用程式」→ 點「</>」(網頁) 圖示
+     → 應用程式暱稱隨便取（例如 gambit），不用勾 Hosting → 註冊。
+     畫面會出現一段 const firebaseConfig = { ... }。
+
+1-6  用文字編輯器（Mac：文字編輯 / VS Code）打開 traders-gambit/config.js，
+     把 apiKey、authDomain、databaseURL、projectId、appId 五個值
+     從上一步複製貼進引號裡，存檔。
+     ※ databaseURL 會長得像
+       https://ebc-gala-2026-default-rtdb.asia-southeast1.firebasedatabase.app
+       如果 firebaseConfig 裡沒有這一行，到 Realtime Database 頁面最上方複製網址。
+     ※ 這些值放在網頁裡是正常的，安全由步驟 1-4 的規則把關。
+
+
+步驟 2：上傳到 Netlify
+----------------------
+2-1  先到 https://app.netlify.com 註冊／登入（免費，可用 Google 或 email）。
+     ★ 一定要先登入再上傳：沒登入就上傳的網站會被加上臨時密碼，
+       沒有認領的話一小時內就會被刪掉。
+
+2-2  登入後開 https://app.netlify.com/drop
+     把「traders-gambit」整個資料夾拖進虛線框裡。
+     幾秒後會拿到一個網址，例如 https://xxxx-xxxx-123abc.netlify.app
+
+2-3  （建議）到 Project configuration → Change project name，
+     改成好記的名字，例如 ebc-gambit → 網址變成 https://ebc-gambit.netlify.app
+
+2-4  之後若要更新檔案：進該網站的「Deploys」頁，
+     把新的 traders-gambit 資料夾拖到頁面下方的上傳區即可，網址不變。
+
+
+步驟 3：怎麼使用
+----------------
+主持人筆電：  https://你的網址/host.html?g=gala1219
+來賓：        掃大螢幕上的 QR code（QR code 已經自動帶入同一個遊戲代號）
+
+  ?g= 後面是「遊戲代號」，換一個代號就是一場全新的遊戲：
+    彩排用  host.html?g=test1、test2…
+    正式用  host.html?g=gala1219
+  這樣彩排的資料不會跑進正式場。
+
+主持流程（大螢幕下方的橘色按鈕，一直按下去就好）：
+  開放加入 → 正式開始（鎖定人數）→ 公布結果 → 下一題 …
+  → 公布排名（未含道具）→ 揭曉道具用途 → 公布最終排名
+
+  ・「正式開始」按下去之後，名單就鎖定，晚到的人無法再加入。
+  ・「測試：加入 10 位模擬玩家」只在開放加入階段出現，彩排時用；正式場不要按。
+  ・「清除重來」要連按兩次，會清空這個遊戲代號的所有玩家與答案。
+  ・同一個遊戲代號只有「第一台開 host.html 的電腦」能主持。
+    當天請用彩排時同一台筆電、同一個瀏覽器開；
+    若必須換電腦，就換一個新的遊戲代號。
+
+
+步驟 4：活動前檢查清單
+----------------------
+□ 用 ?g=test1 彩排一次完整 10 題：主持筆電 + 2～3 支同事手機
+  （iPhone、Android 各至少一支），加 10 位模擬玩家。
+□ 在 Sea to Sky 現場用「餐廳 Wi-Fi」和「4G/5G」各測一次掃碼加入。
+□ 主持筆電關閉自動睡眠、接電源。
+□ 手機若不小心關掉頁面：重新掃 QR code 就會回到原本的身分與分數
+  （同一支手機、同一個瀏覽器即可）。
+□ 免費方案最多 100 個同時連線，60 人足夠；
+  請工作人員不要用多個分頁同時開遊戲頁。
+□ 活動結束後若要關閉：Netlify 網站設定 → Delete project；
+  Firebase 可保留或刪除專案。

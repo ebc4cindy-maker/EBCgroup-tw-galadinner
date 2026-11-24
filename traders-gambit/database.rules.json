@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "games": {
+      "$gid": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('games/'+$gid+'/hostUid').val() === auth.uid",
+        "hostUid": {
+          ".write": "auth != null && (!data.exists() || data.val() === auth.uid) && newData.val() === auth.uid"
+        },
+        "state": {
+          ".write": "auth != null && root.child('games/'+$gid+'/hostUid').val() === auth.uid"
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && ($uid === auth.uid || root.child('games/'+$gid+'/hostUid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['name','table']) && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 8"
+          }
+        },
+        "answers": {
+          "$qk": {
+            "$uid": {
+              ".write": "auth != null && (($uid === auth.uid && !data.exists() && root.child('games/'+$gid+'/state/phase').val() === 'open' && root.child('games/'+$gid+'/state/qk').val() === $qk && root.child('games/'+$gid+'/state/roster/'+auth.uid).exists()) || root.child('games/'+$gid+'/hostUid').val() === auth.uid)"
+            }
+          }
+        }
+      }
+    }
+  }
+}
